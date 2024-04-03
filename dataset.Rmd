@@ -1,0 +1,56 @@
+---
+title: "Jr IS dataset"
+output: html_document
+date: '2024-04-02'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(lubridate)
+
+stock_tweets$dateMod <- as.Date(stock_tweets$Date)
+stock_yfinance_data$dateMod <- as.Date(stock_yfinance_data$Date)
+
+
+filtered_tweets <- filter(stock_tweets, Stock.Name == "TSLA")
+stock_yfinance_data <- filter(stock_yfinance_data, Stock.Name == "TSLA")
+
+
+stock_yfinance_data$delta
+stock_yfinance_data <- mutate(stock_yfinance_data, delta = lead(Open, n=14))
+
+
+
+start_date <- "2021-09-30"
+end_date <- "2021-10-16"
+filtered_tweets <- filtered_tweets[filtered_tweets$dateMod >= start_date & filtered_tweets$dateMod <= end_date, ]
+
+
+filtered_tweets <- merge(filtered_tweets, stock_yfinance_data, by = "dateMod")
+
+
+sampleData <- filtered_tweets[sample(nrow(filtered_tweets), 250), ]
+
+sampleData <- sampleData[order(sampleData$dateMod),]
+
+sampleData$High <- NULL
+sampleData$Low <- NULL
+sampleData$Close <- NULL
+sampleData$Adj.Close <- NULL
+sampleData$Volume <- NULL
+sampleData$Date.x <- NULL
+sampleData$Date.y <- NULL
+sampleData$Stock.Name.x <- NULL
+sampleData$Stock.Name.y <- NULL
+sampleData$Company.Name <- NULL
+
+
+output_file <- "sampleData.csv"
+write.csv(sampleData, file = output_file)
+
+```
+
