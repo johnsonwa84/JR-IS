@@ -21,19 +21,19 @@ stock_yfinance_data <- filter(stock_yfinance_data, Stock.Name == "TSLA")
 
 
 stock_yfinance_data$delta
-stock_yfinance_data <- mutate(stock_yfinance_data, delta = lead(Open, n=14))
+stock_yfinance_data <- mutate(stock_yfinance_data, delta = lead(Open, n=15))
 
 
 
 start_date <- "2021-09-30"
-end_date <- "2021-10-16"
+end_date <- "2022-05-16"
 filtered_tweets <- filtered_tweets[filtered_tweets$dateMod >= start_date & filtered_tweets$dateMod <= end_date, ]
 
 
 filtered_tweets <- merge(filtered_tweets, stock_yfinance_data, by = "dateMod")
 
 
-sampleData <- filtered_tweets[sample(nrow(filtered_tweets), 250), ]
+sampleData <- filtered_tweets[sample(nrow(filtered_tweets), 10000), ]
 
 sampleData <- sampleData[order(sampleData$dateMod),]
 
@@ -48,7 +48,7 @@ sampleData$Stock.Name.x <- NULL
 sampleData$Stock.Name.y <- NULL
 sampleData$Company.Name <- NULL
 
-
+sampleData
 output_file <- "sampleData.csv"
 write.csv(sampleData, file = output_file)
 
