@@ -9,34 +9,36 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+#import libraries
 library(dplyr)
 library(lubridate)
 
+#convert the dates to date variable type
 stock_tweets$dateMod <- as.Date(stock_tweets$Date)
 stock_yfinance_data$dateMod <- as.Date(stock_yfinance_data$Date)
 
-
+#filter data to only include Tesla stock
 filtered_tweets <- filter(stock_tweets, Stock.Name == "TSLA")
 stock_yfinance_data <- filter(stock_yfinance_data, Stock.Name == "TSLA")
 
-
+#add a new column with stock price 14 days in advance of current date
 stock_yfinance_data$delta
-stock_yfinance_data <- mutate(stock_yfinance_data, delta = lead(Open, n=15))
+stock_yfinance_data <- mutate(stock_yfinance_data, delta = lead(Open, n=14))
 
 
-
+#filter date to 9 month period
 start_date <- "2021-09-30"
 end_date <- "2022-05-16"
 filtered_tweets <- filtered_tweets[filtered_tweets$dateMod >= start_date & filtered_tweets$dateMod <= end_date, ]
 
-
+#merge tweets with stock price data based on corresponding date
 filtered_tweets <- merge(filtered_tweets, stock_yfinance_data, by = "dateMod")
 
-
+#take a random sample of size 10,000 from the dataset and order it by date
 sampleData <- filtered_tweets[sample(nrow(filtered_tweets), 10000), ]
-
 sampleData <- sampleData[order(sampleData$dateMod),]
 
+#remove columns that aren't used
 sampleData$High <- NULL
 sampleData$Low <- NULL
 sampleData$Close <- NULL
@@ -48,6 +50,7 @@ sampleData$Stock.Name.x <- NULL
 sampleData$Stock.Name.y <- NULL
 sampleData$Company.Name <- NULL
 
+#save clean dataset to later export to python
 sampleData
 output_file <- "sampleData.csv"
 write.csv(sampleData, file = output_file)
